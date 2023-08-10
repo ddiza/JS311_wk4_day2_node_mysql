@@ -14,11 +14,12 @@ let connection = mysql.createConnection(
 // make connection
 connection.connect();
 
+// make async call to test connection
 connection.query("select now()", (err, rows) => {
   if (err){
     console.log("Connection NOT successful", err)
   } else {
-    console.log("Connected, ", rows)
+    console.log("Connection successful, ", rows)
   }
 }
 );
@@ -40,7 +41,7 @@ module.exports = connection;
  let callback = (err, rows) =>{
    if (err) {
      // not truthy, so a connection wasn't made
-     console.log("Could Not Connect To The Database", err)
+     console.log("Connect NOT successful", err)
    } else {
      // IS truthy, so the query executed; query output is provided
      console.log("Connection Successful!", rows)
@@ -49,7 +50,9 @@ module.exports = connection;
 */
 
 
-// class based connection (older method)
+// (OLDER METHOD) Class-based connection :
+// const mysql = require("mysql")
+//
 // class Connection {
 //   constructor() {
 //     if (!this.pool) {
