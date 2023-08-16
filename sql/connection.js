@@ -14,6 +14,51 @@ let connection = mysql.createConnection(
 // make connection
 connection.connect();
 
+// mySQL module doesn't include a method that handles promises, -just callbacks.
+// The database doesn't care. It just receives queries, processes it, and returning results.
+// If we want to use promises, either find a module that handles mySQL promises (and learn to use it)
+//   or we can build our own middleware function that does it for us.
+
+// **BASIC WRAPPER PROMISE** if you just want to convert a callback to a promise.
+// Used when we build our authorization project:
+connection.queryPromise = (sql, params) => {
+  return new Promise((resolve, reject) => {
+    connection.query(sql, params, (err, rows) => {
+      if(err) {
+        reject(err);
+      } else {
+        resolve(rows);
+      }
+    })
+  })
+};
+
+// To go farther, if you want to process the results of your promise and return the results
+//   you want to make a blocking function that always returns an err or rows.
+connection.querySync = async (sql, params) => {
+  let promise = new Promise((resolve, reject) => {
+    console.log("Executing query", sql);
+    connection.query(sql, params, (err, rows) => {
+      if(err){
+        console.log("rejecting");
+        return reject(err);
+      } else {
+        console.log("resolving");
+        return resolve(results);
+      }
+    })
+  })
+
+  let results = await promise.then((results) => {
+    console.log("results ", results);
+    return results;
+  }).catch((err) => {
+    throw err;
+  })
+  return results;
+};
+
+
 // make async call to test connection
 connection.query("select now()", (err, rows) => {
   if (err){
