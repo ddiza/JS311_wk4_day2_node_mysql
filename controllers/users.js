@@ -116,10 +116,11 @@ const createUser = (req, res) => {
   // FIRST QUERY
   let first = req.body.first_name;
   let last = req.body.last_name;
-  let params = [first, last];
 
-  //I could also do this, but sometimes it gets long
+  let params = [first, last];
+  //I could also do this, but sometimes it gets long:
   // let params = [req.body.first_name, req.body.last_name]
+
   let sql = "insert into users (first_name, last_name) values (?, ?)";
 
   db.query(sql, params, (err,rows) => {
@@ -127,11 +128,12 @@ const createUser = (req, res) => {
       console.log("createUser query failed ", err);
       res.sendStatus(500);
     } else {
-      // If we got here, the first query executed
+      // If we got here, the first query executed.
       // postman check
+      //res.joson(rows)
       
       // SECOND QUERY
-      // I need the ID of the user we just inserted. For this example, I'm might have to use MAX() to get the id
+      // I need the ID of the user we just inserted. For this example, might have to use MAX() to get the id
       let getId = rows.insertId;
 
       let address = req.body.address;
@@ -143,21 +145,38 @@ const createUser = (req, res) => {
       params = [getId, address, city, county, state, zip]
 
       sql = "insert into usersAddress (user_id, address, city, county, state, zip) ";
-      sql += "values (?,?,?,?,?,?)";
+      sql += "values (?, ?, ?, ?, ?, ?)";
 
       db.query(sql, params, (err,rows) => {
         if(err){
           console.log("insert into usersAddress query failed ", err)
+          res.sendStatus(500)
         } else {
-          // second query worked
+          // If we get here, second query worked
           // postman check
           // res.json(rows);
 
           //THIRD QUERY
+          let phone1 = req.body.phone1;
+          let phone2 = req.body.phone2;
+          let email = req.body.email;
+
+          params = [getId, phone1, phone2, email]
+          sql = "insert into usersContact (user_id, phone1, phone2, email) ";
+          sql += "values (?,?,?,?)";
+
+          db.query(sql, params, (err,rows) => {
+            if(err){
+              console.log("insert into usersContact query failed ", err)
+              res.sendStatus(500)
+            } else {
+              // If we get here, third query worked
+              // postman check
+              res.json(rows); //This is the final return (previous are marked down)
+            }
+          })
         }
       })
-      
-
     }
   })
 }
